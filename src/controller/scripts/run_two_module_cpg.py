@@ -8,7 +8,7 @@ torque PD control, and the passive paddle angle q_i gives a Flex sensor value
 
     S_i = sign * clip(q_i / (2 q_limit), -0.5, 0.5)       (sign = -1)
 
-Phase update (own sensor feedback, Nishikawa-type):
+Phase update (each module uses its own Flex sensor value):
 
     d phi_i / dt = omega_i + sigma * Z(phi_i) * S_i
 

@@ -1,17 +1,17 @@
 # Modular Robot Simulation (MuJoCo + ROS2)
 
 > **このブランチについて（倉林研）**
-> [twoo-kim/modular](https://github.com/twoo-kim/modular) をもとに，CADだけを山口の実機のものに差し替えた土台です．制御・流体係数・密度・関節設定はKimのモデルのままです．
+> [twoo-kim/modular](https://github.com/twoo-kim/modular) をもとに，パドルと接続パーツのCADを倉林研の実機（山口作成）のものに差し替え，2台を動かす例のスクリプトを1本足した土台です．流体係数・密度・関節の設定とKimの既存スクリプトは変えていません．
 >
 > | 変更 | ファイル |
 > |---|---|
-> | パドルを60 mmのCADに変更（40・80 mmも同梱） | `models/xml/asset.xml`，`models/meshes/paddle{40,60,80}.stl` |
+> | パドルを60 mmのCADに変更（40・80 mmも同梱．数字は水をかく「くの字」部分の寸法で，全幅ではない） | `models/xml/asset.xml`，`models/meshes/paddle{40,60,80}.stl` |
 > | 2台をtetra 1自由度接続パーツでつないだモデルを追加 | `models/xml/colony/test_2_tetra.xml`，`models/meshes/tetra_connector.stl` |
 > | CAD原本（mm単位・未変換） | `models/cad/` |
 >
 > - パドルサイズの切り替え：`asset.xml` の `paddle60.stl` を `paddle40.stl` / `paddle80.stl` に書き換える．Kimの元のパドルは `paddle.STL`．
 > - `meshes/` のパドルは，CAD原本をmmからmへ換算（×0.001）し，x軸まわりに180°回転，(0, −30, +1.7) mm平行移動して取り付け穴をパドル関節の原点に合わせたもの．
-> - `test_2_tetra.xml` は水槽実験と同じく，群体全体が1軸（z = 0.5 m の軸）まわりに回転する．自由遊泳にするには `colony_yaw` を `<joint name="base" type="free"/>` に置き換える．
+> - `test_2_tetra.xml` は固定軸での実験に合わせ，群体全体が鉛直軸（点 (0, 0, 0.5) m を通る world z 軸）まわりにだけ回転する．自由遊泳にするには `colony_yaw` を `<joint name="base" type="free"/>` に置き換える．
 > - 接続パーツはPLA密度1240 kg/m³で質量を計算し，接触判定は切っている．旧型本体との重なりは残る．
 > - 質量・慣性・流体係数は実測で較正していない．
 > - 確認：MuJoCo 3.3.7で読み込みと時間発展を確認済み．
