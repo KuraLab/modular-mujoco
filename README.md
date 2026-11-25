@@ -16,8 +16,20 @@
 > - 質量・慣性・流体係数は実測で較正していない．
 > - 確認：MuJoCo 3.3.7で読み込みと時間発展を確認済み．
 >
+> **2台を位相振動子で動かす例**：`src/controller/scripts/run_two_module_cpg.py`
+>
+> | 設定 | 値 |
+> |---|---|
+> | モータ目標角 | 40° cos φᵢ |
+> | モータ制御 | トルクのPD制御，kp = 0.060，kd = 0.002 |
+> | 角周波数（既定） | ω₁ = 2.5π，ω₂ = 2.4π rad/s |
+> | 曲げセンサ値 | Sᵢ = −clip(qᵢ / (2 q_limit), −0.5, 0.5)，qᵢ は受動関節角 |
+> | 位相の更新 | dφᵢ/dt = ωᵢ + σ Z(φᵢ) Sᵢ（σ = 0 で開ループ，Zは `z_profile()` を書き換える） |
+>
 > ```
-> python -c "import mujoco; m = mujoco.MjModel.from_xml_path('models/xml/colony/test_2_tetra.xml'); print(m.nv)"
+> python src/controller/scripts/run_two_module_cpg.py                 # 開ループ30秒，logs/ にCSV
+> python src/controller/scripts/run_two_module_cpg.py --sigma 0.1     # フィードバックあり
+> mjpython src/controller/scripts/run_two_module_cpg.py --view        # macOSでviewer表示
 > ```
 
 Simulation of modular robots with one active motor joint and one passive paddle joint per module. Run via pure Python scripts or as ROS2 C++ nodes. Includes linear time-periodic (LTP) analysis and harmonic transfer function (HTF) tools.
