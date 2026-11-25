@@ -1,3 +1,5 @@
 .DS_Store
 .idea/
 logs/
+__pycache__/
+MUJOCO_LOG.TXT

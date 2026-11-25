@@ -1,0 +1,32 @@
+<mujoco model="modular_tetra">
+  <!-- Two modules joined by the tetra 1-DOF connector (Yamaguchi CAD).
+       The colony rotates about one axis (shaft at z = 0.5 m), as in the tank setup.
+       For free swimming, replace the colony_yaw joint with <joint name="base" type="free"/>. -->
+  <option timestep="0.001" gravity="0 0 0" integrator="Euler" density="1025" viscosity="0.001" iterations="50" solver="Newton"/>
+
+  <include file="../environment.xml"/>
+  <asset>
+    <model name="modbot" file="../modular.xml"/>
+    <mesh name="tetra_connector" file="../../meshes/tetra_connector.stl"/>
+  </asset>
+  <worldbody>
+    <body name="colony" pos="0 0 0.5" quat="0.707106781 0.707106781 0 0">
+      <site name="COM" pos="0 0 0"/>
+      <joint name="colony_yaw" type="hinge" axis="0 1 0"/>
+      <!-- Module x offset 51.6 mm and z shift 5.2874 mm align each capsule with the connector lugs -->
+      <body name="bot1" pos="0.0516 -0.0052874157 0" quat="0.707107 0 0 0.707107">
+        <attach model="modbot" body="main_body" prefix="r1_"/>
+      </body>
+      <body name="bot2" pos="-0.0516 0.0052874157 0" quat="-0.707107 0 0 0.707107">
+        <attach model="modbot" body="main_body" prefix="r2_"/>
+      </body>
+      <!-- Connector: PLA density, no contact (overlap with the old capsule is expected) -->
+      <geom name="tetra_connector" type="mesh" mesh="tetra_connector" rgba=".1 .1 .1 1" density="1240" contype="0" conaffinity="0"/>
+    </body>
+  </worldbody>
+
+  <sensor>
+    <force  name="colony_force"  site="COM"/>
+    <torque name="colony_torque" site="COM"/>
+  </sensor>
+</mujoco>

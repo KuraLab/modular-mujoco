@@ -7,7 +7,8 @@
 		<mesh name="main_body" 		file="main_body.STL"/>
 		<mesh name="flA" 			file="flA.STL"/>
 		<mesh name="flB" 			file="flB.STL"/>
-		<mesh name="paddle" 		file="paddle.STL"/>
+		<!-- Paddle CAD (Yamaguchi): paddle40 / paddle60 / paddle80. Kim original: paddle.STL -->
+		<mesh name="paddle" 		file="paddle60.stl"/>
 		<mesh name="cap" 			file="cap.STL"/>
 		<mesh name="motor" 			file="motor.STL"/>
 		<mesh name="motor_paddle" 	file="motor_paddle.STL"/>
