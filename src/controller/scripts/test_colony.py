@@ -29,6 +29,10 @@ MAX_RAD = math.radians(MAX_DEG)
 MID_RAD = 0.5 * (MIN_RAD + MAX_RAD)
 HALF_SW = 0.5 * (MAX_RAD - MIN_RAD)
 
+# Torque PD gains for the motor_tau actuator (same as P_gain / D_gain in config/modular_params.yaml)
+P_GAIN = 1.0
+D_GAIN = 0.01
+
 # Add a dummy mass to avoid mass-0 error when 'colony' joint is free
 ADD_COLONY_DUMMY_MASS = True
 
@@ -37,7 +41,7 @@ class Agent:
     prefix: str            # 'r1_', 'r2_', ...
     jid_motor: int         # motor_hinge joint ID
     jid_paddle: int        # paddle_hinge joint ID
-    aid_motor: int         # Position actuator ID (r?_motor)
+    aid_motor: int         # Torque actuator ID (r?_motor_tau)
     phi: float = 0.0       # Internal phase
     xi: float  = 0.0       # Normalized paddle relative angle
 
@@ -130,7 +134,7 @@ def detect_agents(m: mujoco.MjModel) -> List[Agent]:
     for pf in prefs:
         jid_m = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT,     f"{pf}motor_hinge")
         jid_p = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT,     f"{pf}paddle_hinge")
-        aid_m = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, f"{pf}motor")
+        aid_m = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, f"{pf}motor_tau")
         if jid_m == -1 or aid_m == -1:
             continue
         agents.append(Agent(prefix=pf, jid_motor=jid_m, jid_paddle=jid_p, aid_motor=aid_m,
@@ -162,12 +166,18 @@ def desired_angle_from_phi(phi: float) -> float:
     # Cosine scan: θ_ref = MID - HALF * cos(phi)
     return MID_RAD - HALF_SW * math.cos(phi)
 
+def motor_torque(m: mujoco.MjModel, d: mujoco.MjData, ag: Agent, target: float) -> float:
+    # motor_tau is a torque actuator: track the desired angle with PD control
+    q = d.qpos[m.jnt_qposadr[ag.jid_motor]]
+    qd = d.qvel[m.jnt_dofadr[ag.jid_motor]]
+    return P_GAIN * (target - q) - D_GAIN * qd
+
 # ---------- Execution ----------
 def run():
     m, d, _ = load_model()
     agents = detect_agents(m)
     if not agents:
-        raise RuntimeError("Could not find r*_motor / r*_motor_hinge. Please check XML prefix/actuator names.")
+        raise RuntimeError("Could not find r*_motor_tau / r*_motor_hinge. Please check XML prefix/actuator names.")
     dt = m.opt.timestep
 
     if HEADLESS:
@@ -178,7 +188,7 @@ def run():
                 _, alpha_rel, alpha_max = get_angles(m, d, ag)
                 ag.xi  = compute_xi(alpha_rel, alpha_max)
                 ag.phi = integrate_phi(ag.phi, ag.xi, dt)
-                d.ctrl[ag.aid_motor] = desired_angle_from_phi(ag.phi)
+                d.ctrl[ag.aid_motor] = motor_torque(m, d, ag, desired_angle_from_phi(ag.phi))
             mujoco.mj_step(m, d)
         return
 
@@ -189,7 +199,7 @@ def run():
                 _, alpha_rel, alpha_max = get_angles(m, d, ag)
                 ag.xi  = compute_xi(alpha_rel, alpha_max)
                 ag.phi = integrate_phi(ag.phi, ag.xi, dt)
-                d.ctrl[ag.aid_motor] = desired_angle_from_phi(ag.phi)
+                d.ctrl[ag.aid_motor] = motor_torque(m, d, ag, desired_angle_from_phi(ag.phi))
             mujoco.mj_step(m, d)
             viewer.sync()
             time.sleep(0.001)
