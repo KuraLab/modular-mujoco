@@ -1,35 +1,35 @@
 # Modular Robot Simulation (MuJoCo + ROS2)
 
-> **このブランチについて（倉林研）**
-> [twoo-kim/modular](https://github.com/twoo-kim/modular) をもとに，パドルと接続パーツのCADを倉林研の実機（山口作成）のものに差し替え，2台を動かす例のスクリプトを1本足した土台です．流体係数・密度・関節の設定とKimの既存スクリプトは変えていません．
+> **About this fork (Kurabayashi Lab)**
+> Based on [twoo-kim/modular](https://github.com/twoo-kim/modular). The paddle and connector meshes are replaced with the CAD of the Kurabayashi Lab robot (by J. Yamaguchi), and one example script for two modules is added. Fluid coefficients, densities, joint settings and Kim's existing scripts are unchanged.
 >
-> | 変更 | ファイル |
+> | Change | Files |
 > |---|---|
-> | パドルを60 mmのCADに変更（40・80 mmも同梱．数字は水をかく「くの字」部分の寸法で，全幅ではない） | `models/xml/asset.xml`，`models/meshes/paddle{40,60,80}.stl` |
-> | 2台をtetra 1自由度接続パーツでつないだモデルを追加 | `models/xml/colony/test_2_tetra.xml`，`models/meshes/tetra_connector.stl` |
-> | CAD原本（mm単位・未変換） | `models/cad/` |
+> | Paddle mesh set to the 60 mm CAD (40 mm and 80 mm included; the number is the size of the V-shaped blade, not the overall width) | `models/xml/asset.xml`, `models/meshes/paddle{40,60,80}.stl` |
+> | Two modules joined by the tetra 1-DOF connector | `models/xml/colony/test_2_tetra.xml`, `models/meshes/tetra_connector.stl` |
+> | Original CAD (mm, not transformed) | `models/cad/` |
 >
-> - パドルサイズの切り替え：`asset.xml` の `paddle60.stl` を `paddle40.stl` / `paddle80.stl` に書き換える．Kimの元のパドルは `paddle.STL`．
-> - `meshes/` のパドルは，CAD原本をmmからmへ換算（×0.001）し，x軸まわりに180°回転，(0, −30, +1.7) mm平行移動して取り付け穴をパドル関節の原点に合わせたもの．
-> - `test_2_tetra.xml` は固定軸での実験に合わせ，群体全体が鉛直軸（点 (0, 0, 0.5) m を通る world z 軸）まわりにだけ回転する．自由遊泳にするには `colony_yaw` を `<joint name="base" type="free"/>` に置き換える．
-> - 接続パーツはPLA密度1240 kg/m³で質量を計算し，接触判定は切っている．旧型本体との重なりは残る．
-> - 質量・慣性・流体係数は実測で較正していない．
-> - 確認：MuJoCo 3.3.7で読み込みと時間発展を確認済み．
+> - Paddle size: replace `paddle60.stl` in `asset.xml` with `paddle40.stl` or `paddle80.stl`. Kim's original paddle is `paddle.STL`.
+> - The paddle meshes in `meshes/` are the original CAD scaled from mm to m (x0.001), rotated 180 deg about x, and translated by (0, -30, +1.7) mm so that the mounting hole is at the paddle hinge origin.
+> - In `test_2_tetra.xml` the whole colony rotates only about the vertical axis (world z through (0, 0, 0.5) m), matching the fixed-shaft experiment. For free swimming, replace `colony_yaw` with `<joint name="base" type="free"/>`.
+> - The connector uses PLA density 1240 kg/m^3 and has contact disabled; it overlaps the old capsule body.
+> - Mass, inertia and fluid coefficients are not calibrated against measurements.
+> - Tested: the models load and run in MuJoCo 3.3.7.
 >
-> **2台を位相振動子で動かす例**：`src/controller/scripts/run_two_module_cpg.py`
+> **Example: two modules driven by phase oscillators** — `src/controller/scripts/run_two_module_cpg.py`
 >
-> | 設定 | 値 |
+> | Setting | Value |
 > |---|---|
-> | モータ目標角 | 40° cos φᵢ |
-> | モータ制御 | トルクのPD制御，kp = 0.060，kd = 0.002 |
-> | 角周波数（既定） | ω₁ = 2.5π，ω₂ = 2.4π rad/s |
-> | 曲げセンサ値 | Sᵢ = −clip(qᵢ / (2 q_limit), −0.5, 0.5)，qᵢ は受動関節角 |
-> | 位相の更新 | dφᵢ/dt = ωᵢ + σ Z(φᵢ) Sᵢ（σ = 0 で開ループ，Zは `z_profile()` を書き換える） |
+> | Motor target | 40 deg x cos(phi_i) |
+> | Motor control | Torque PD, kp = 0.060, kd = 0.002 |
+> | Angular frequency (default) | omega_1 = 2.5 pi, omega_2 = 2.4 pi rad/s |
+> | Flex sensor value | S_i = -clip(q_i / (2 q_limit), -0.5, 0.5), q_i: passive paddle angle |
+> | Phase update | dphi_i/dt = omega_i + sigma Z(phi_i) S_i (sigma = 0: open loop; edit `z_profile()` for Z) |
 >
 > ```
-> python src/controller/scripts/run_two_module_cpg.py                 # 開ループ30秒，logs/ にCSV
-> python src/controller/scripts/run_two_module_cpg.py --sigma 0.1     # フィードバックあり
-> mjpython src/controller/scripts/run_two_module_cpg.py --view        # macOSでviewer表示
+> python src/controller/scripts/run_two_module_cpg.py                 # open loop, 30 s, CSV in logs/
+> python src/controller/scripts/run_two_module_cpg.py --sigma 0.1     # with feedback
+> mjpython src/controller/scripts/run_two_module_cpg.py --view        # viewer on macOS
 > ```
 
 Simulation of modular robots with one active motor joint and one passive paddle joint per module. Run via pure Python scripts or as ROS2 C++ nodes. Includes linear time-periodic (LTP) analysis and harmonic transfer function (HTF) tools.
