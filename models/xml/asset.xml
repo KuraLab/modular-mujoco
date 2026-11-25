@@ -7,8 +7,11 @@
 		<mesh name="main_body" 		file="main_body.STL"/>
 		<mesh name="flA" 			file="flA.STL"/>
 		<mesh name="flB" 			file="flB.STL"/>
-		<!-- Paddle CAD (Yamaguchi): paddle40 / paddle60 / paddle80. Kim original: paddle.STL -->
-		<mesh name="paddle" 		file="paddle60.stl"/>
+		<mesh name="paddle" 		file="paddle.STL"/>
+		<!-- Kurabayashi Lab paddle CAD (Yamaguchi), used by modular_cad.xml -->
+		<mesh name="paddle40" 		file="paddle40.stl"/>
+		<mesh name="paddle60" 		file="paddle60.stl"/>
+		<mesh name="paddle80" 		file="paddle80.stl"/>
 		<mesh name="cap" 			file="cap.STL"/>
 		<mesh name="motor" 			file="motor.STL"/>
 		<mesh name="motor_paddle" 	file="motor_paddle.STL"/>

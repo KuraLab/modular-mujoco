@@ -6,7 +6,7 @@
 
   <include file="../environment.xml"/>
   <asset>
-    <model name="modbot" file="../modular.xml"/>
+    <model name="modbot" file="../modular_cad.xml"/>
     <mesh name="tetra_connector" file="../../meshes/tetra_connector.stl"/>
   </asset>
   <worldbody>

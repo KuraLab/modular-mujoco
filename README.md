@@ -1,15 +1,15 @@
 # Modular Robot Simulation (MuJoCo + ROS2)
 
 > **About this fork (Kurabayashi Lab)**
-> Based on [twoo-kim/modular](https://github.com/twoo-kim/modular). The paddle and connector meshes are replaced with the CAD of the Kurabayashi Lab robot (by J. Yamaguchi), and one example script for two modules is added. Fluid coefficients, densities, joint settings and Kim's existing scripts are unchanged.
+> Based on [twoo-kim/modular](https://github.com/twoo-kim/modular). The Kurabayashi Lab paddle and connector CAD (by J. Yamaguchi) is added next to Kim's model, with one example script for two modules. Kim's original model (`modular.xml`, Kim's paddle), its fluid coefficients, densities, joint settings and scripts are unchanged, so `test_force.py` and `test_experiment.py` still compare against the `exp/` data with Kim's paddle.
 >
 > | Change | Files |
 > |---|---|
-> | Paddle mesh set to the 60 mm CAD (40 mm and 80 mm included; the number is the size of the V-shaped blade, not the overall width) | `models/xml/asset.xml`, `models/meshes/paddle{40,60,80}.stl` |
-> | Two modules joined by the tetra 1-DOF connector | `models/xml/colony/test_2_tetra.xml`, `models/meshes/tetra_connector.stl` |
+> | Module with the Kurabayashi Lab paddle (60 mm by default; 40 mm and 80 mm included; the number is the size of the V-shaped blade, not the overall width) | `models/xml/modular_cad.xml`, `models/meshes/paddle{40,60,80}.stl` (meshes declared in `asset.xml`) |
+> | Two modules with the Kurabayashi Lab paddle, joined by the tetra 1-DOF connector | `models/xml/colony/test_2_tetra.xml`, `models/meshes/tetra_connector.stl` |
 > | Original CAD (mm, not transformed) | `models/cad/` |
 >
-> - Paddle size: replace `paddle60.stl` in `asset.xml` with `paddle40.stl` or `paddle80.stl`. Kim's original paddle is `paddle.STL`.
+> - Paddle size: change `mesh="paddle60"` in `modular_cad.xml` to `paddle40` or `paddle80`. Models that include `modular.xml` keep Kim's paddle (`paddle.STL`).
 > - The paddle meshes in `meshes/` are the original CAD scaled from mm to m (x0.001), rotated 180 deg about x, and translated by (0, -30, +1.7) mm so that the mounting hole is at the paddle hinge origin.
 > - In `test_2_tetra.xml` the whole colony rotates only about the vertical axis (world z through (0, 0, 0.5) m), matching the fixed-shaft experiment. For free swimming, replace `colony_yaw` with `<joint name="base" type="free"/>`.
 > - The connector uses PLA density 1240 kg/m^3 and has contact disabled; it overlaps the old capsule body.
