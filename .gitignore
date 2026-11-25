@@ -4,3 +4,5 @@ logs/
 __pycache__/
 MUJOCO_LOG.TXT
 models/xml/test_*_circle.xml
+.vscode/
+.venv/
