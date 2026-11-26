@@ -1,0 +1,32 @@
+<mujoco model="modular_ring">
+  <option timestep="0.001" gravity="0 0 0" integrator="Euler" density="1025" viscosity="0.001" iterations="50" solver="Newton"/>
+  <statistic center="0 0 0.5" extent="0.5"/>
+  <visual>
+    <global azimuth="135" elevation="-30"/>
+  </visual>
+
+  <include file="../environment.xml"/>
+  <asset>
+    <model name="modbot" file="../modular_cad.xml"/>
+  </asset>
+  <worldbody>
+    <!-- The mounts form a rigid assembly. Its mass and inertia come from the CAD modules. -->
+    <body name="colony" pos="0 0 0.5">
+      <freejoint name="colony_orientation"/>
+      <!-- The mounts at a 60 mm radius are rolled about their radial axes to make the paddle
+           hinges tangent to the ring. The 8 mm lift aligns the motor hinges with the pivot height. -->
+      <body name="bot1" pos="0.06 0 0.008" xyaxes="0 -1 0  -1 0 0">
+        <attach model="modbot" body="main_body" prefix="r1_"/>
+      </body>
+      <body name="bot2" pos="0 0.06 0.008" xyaxes="1 0 0  0 -1 0">
+        <attach model="modbot" body="main_body" prefix="r2_"/>
+      </body>
+      <body name="bot3" pos="-0.06 0 0.008" xyaxes="0 1 0  1 0 0">
+        <attach model="modbot" body="main_body" prefix="r3_"/>
+      </body>
+      <body name="bot4" pos="0 -0.06 0.008" xyaxes="-1 0 0  0 1 0">
+        <attach model="modbot" body="main_body" prefix="r4_"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
